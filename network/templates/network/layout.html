@@ -1,0 +1,90 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en" class="h-full dark">
+
+<head>
+    <title>{% block title %}Social Network{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+    <link href="{% static 'network/styles.css' %}" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class'
+        }
+    </script>
+</head>
+
+<body class="flex flex-col min-h-screen bg-gray-900 text-gray-100 dark:bg-gray-900 dark:text-gray-100">
+
+    <!-- navbar starts -->
+    <nav class="bg-gray-950 text-white shadow-lg dark:bg-gray-950">
+        <div class="container mx-auto px-4 py-3 flex flex-wrap items-center justify-between">
+            <a class="text-2xl font-bold tracking-wide text-blue-400 hover:text-blue-300 transition"
+                href="{% url 'index' %}">Network</a>
+            <button class="block md:hidden text-gray-400 focus:outline-none" id="navbar-toggle">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+            </button>
+            <div class="w-full md:flex md:items-center md:w-auto hidden" id="navbar-menu">
+                <ul class="flex flex-col md:flex-row md:space-x-6 mt-4 md:mt-0">
+                    <li>
+                        <a class="block py-2 px-3 rounded hover:bg-gray-800 {% if request.path == '/' %}text-blue-400{% endif %}"
+                            href="{% url 'index' %}">All Posts</a>
+                    </li>
+                    {% if user.is_authenticated %}
+                    <li>
+                        <a class="block py-2 px-3 rounded hover:bg-gray-800" href="{% url 'following' %}">Following</a>
+                    </li>
+                    {% endif %}
+                </ul>
+                <div class="flex items-center mt-4 md:mt-0 md:ml-6 space-x-2">
+                    {% if user.is_authenticated %}
+                    <span class="text-sm">Signed in as <a href="{% url 'userProfile' user.username %}"
+                            class="text-blue-400 hover:underline">{{ user.username }}</a>.</span>
+                    <a href="{% url 'logout' %}">
+                        <button type="button"
+                            class="ml-2 px-4 py-2 border border-blue-400 text-blue-400 rounded hover:bg-blue-400 hover:text-gray-900 transition">Log
+                            Out</button>
+                    </a>
+                    {% else %}
+                    <a href="{% url 'login' %}">
+                        <button type="button"
+                            class="px-4 py-2 border border-blue-400 text-blue-400 rounded hover:bg-blue-400 hover:text-gray-900 transition">Login</button>
+                    </a>
+                    <a href="{% url 'register' %}">
+                        <button type="button"
+                            class="px-4 py-2 bg-blue-400 text-gray-900 rounded hover:bg-blue-500 transition">Register</button>
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+    <script>
+        
+        document.addEventListener('DOMContentLoaded', function () {
+            const toggle = document.getElementById('navbar-toggle');
+            const menu = document.getElementById('navbar-menu');
+            if (toggle && menu) {
+                toggle.addEventListener('click', function () {
+                    menu.classList.toggle('hidden');
+                });
+            }
+        });
+    </script>
+    <!-- navbar ends -->
+
+    <!-- body starts  -->
+    <main class="flex-1">
+        {% block body %}
+        {% endblock %}
+    </main>
+    <!-- body ends  -->
+
+</body>
+
+</html>

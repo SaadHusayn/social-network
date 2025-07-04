@@ -1,0 +1,108 @@
+{% load static %}
+{% for post in page_obj %}
+
+<div class="post bg-gray-800 rounded-lg shadow-md p-6 mb-8 border border-gray-700">
+    <div class="flex items-center mb-2">
+        {% if post.creator.profile_picture %}
+        <img class="profile-pic-sm w-10 h-10 rounded-full object-cover mr-3 border border-gray-700" src="{{post.creator.profile_picture.url}}" alt="{{post.creator.username}}">
+        {% else %}
+        <img class="profile-pic-sm w-10 h-10 rounded-full object-cover mr-3 border border-gray-700" src="{% static 'network/defaultUserProfilePic.jpg' %}" alt="{{post.creator.username}}">
+        {% endif %}
+        <h5 class="text-lg font-semibold">
+            <a class="user-link text-blue-400 hover:underline" href="{% url 'userProfile' post.creator.username %}">{{post.creator}}</a>
+        </h5>
+        <span class="ml-2 text-gray-400 text-xs">{{post.created_at}}</span>
+    </div>
+    <div class="post-content-{{post.id}} text-gray-200 mb-3 pl-2 border-l-4 border-blue-700">
+        {{post.postContent}}
+    </div>
+    <div class="flex items-center space-x-2 mb-2">
+        {% if user.is_authenticated %}
+            {% if user in post.liked_by.all %}
+            <button class="like-button bg-blue-900 hover:bg-blue-800 text-blue-300 px-3 py-1 rounded transition" data-like="false" data-postid="{{post.id}}">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-red-400 group-hover:text-red-600 transition pointer-events-none" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"/>
+                </svg>
+            </button>
+            {% else %}
+            <button class="like-button bg-blue-900 hover:bg-blue-800 text-blue-300 px-3 py-1 rounded transition" data-like="true" data-postid="{{post.id}}">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white group-hover:text-red-600 transition pointer-events-none" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"/>
+                </svg>
+            </button>
+            {% endif %}
+            {% if post.creator == user %}
+            <button class="edit-post-button bg-yellow-900 hover:bg-yellow-800 text-yellow-300 px-3 py-1 rounded transition" id="edit-post-button-{{post.id}}" data-postid="{{post.id}}">Edit Post</button>
+            {% endif %}
+        {% endif %}
+        <div class="like-count-{{post.id}} text-sm text-gray-400 ml-2">{{post.liked_by.count}}</div>
+        <span class="text-sm text-gray-500">Like(s)</span>
+    </div>
+    <button type="button"
+        class="toggle-comment-section-btn bg-blue-700 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded transition mb-2"
+        data-postid="{{post.id}}">
+        Comments
+    </button>
+
+    <!-- Tailwind comment section (hidden by default) -->
+    <div id="comment-section-{{post.id}}" class="hidden mt-4">
+        <div class="bg-gray-900 border border-gray-700 rounded-lg p-4">
+            {% if user.is_authenticated %}
+            <div class="mb-4">
+                <input type="text" id="commentContent-{{post.id}}" 
+                    class="form-control w-full px-3 py-2 border border-gray-700 rounded bg-gray-900 text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-800"
+                    placeholder="Write Comment..." />
+            </div>
+            <button type="button"
+                class="save-comment-button bg-blue-700 hover:bg-blue-600 text-white px-4 py-2 rounded transition mb-4"
+                data-postid="{{post.id}}">
+                Save Comment
+            </button>
+            {% else %}
+            <a href="{% url 'login' %}" class="text-blue-400 hover:underline">Login to write Comment on this post.</a>
+            {% endif %}
+            <div id="all-the-comments-{{post.id}}" class="space-y-3 mt-4"></div>
+        </div>
+    </div>
+</div>
+
+{% empty %}
+<div class="text-center text-gray-500 mt-8">No Posts.</div>
+{% endfor %}
+
+<div class="flex justify-center mt-8">
+    <nav class="inline-flex rounded-md shadow-sm bg-gray-800 px-4 py-2 border border-gray-700" aria-label="Pagination">
+        {% if page_obj.has_previous %}
+            <a href="?page=1"
+               class="relative inline-flex items-center px-3 py-1 rounded-l-md border border-gray-700 bg-gray-900 text-gray-400 hover:bg-gray-700 transition"
+               title="First Page">&laquo;</a>
+            <a href="?page={{ page_obj.previous_page_number }}"
+               class="relative inline-flex items-center px-3 py-1 border-t border-b border-gray-700 bg-gray-900 text-gray-200 hover:bg-gray-700 transition"
+               title="Previous Page">Previous</a>
+        {% else %}
+            <span class="relative inline-flex items-center px-3 py-1 rounded-l-md border border-gray-800 bg-gray-900 text-gray-700 cursor-not-allowed">&laquo;</span>
+            <span class="relative inline-flex items-center px-3 py-1 border-t border-b border-gray-800 bg-gray-900 text-gray-700 cursor-not-allowed">Previous</span>
+        {% endif %}
+
+        <span class="relative inline-flex items-center px-4 py-1 border-t border-b border-gray-700 bg-blue-950 text-blue-300 font-semibold mx-1">
+            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+        </span>
+
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}"
+               class="relative inline-flex items-center px-3 py-1 border-t border-b border-gray-700 bg-gray-900 text-gray-200 hover:bg-gray-700 transition"
+               title="Next Page">Next</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}"
+               class="relative inline-flex items-center px-3 py-1 rounded-r-md border border-gray-700 bg-gray-900 text-gray-400 hover:bg-gray-700 transition"
+               title="Last Page">&raquo;</a>
+        {% else %}
+            <span class="relative inline-flex items-center px-3 py-1 border-t border-b border-gray-800 bg-gray-900 text-gray-700 cursor-not-allowed">Next</span>
+            <span class="relative inline-flex items-center px-3 py-1 rounded-r-md border border-gray-800 bg-gray-900 text-gray-700 cursor-not-allowed">&raquo;</span>
+        {% endif %}
+    </nav>
+</div>
+<script>
+    //this will be used in javascript file
+    let userProfileUrl = "{% url 'userProfile' 'PLACEHOLDER' %}";
+</script>
+<script src="{% static 'network/posts.js' %}"></script>

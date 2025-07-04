@@ -1,0 +1,22 @@
+{% extends "network/layout.html" %}
+
+{% block body %}
+
+{% if user.is_authenticated %}
+<div class="flex justify-center mt-8 mb-8">
+    <form method="post" action="{% url 'createPost' %}" class="w-full max-w-xl bg-gray-800 rounded-lg shadow-md p-6 space-y-4 border border-gray-700">
+        {% csrf_token %}
+        <div>
+            <label for="id_postContent" class="block text-lg font-semibold text-gray-200 mb-2">New Post</label>
+            {{ form.postContent }}
+        </div>
+        <div class="flex justify-end">
+            <input type="submit" value="Post" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded transition cursor-pointer" />
+        </div>
+    </form>
+</div>
+{% endif %}
+
+{% include 'network/posts.html' %}
+
+{% endblock %}
